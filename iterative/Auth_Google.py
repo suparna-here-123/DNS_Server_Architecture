@@ -31,4 +31,11 @@ while True:
 
     # Sending response back to the local DNS server
     print("Sending message to Local DNS : ", port)
-    google_server_socket.sendto(str(port).encode(), (local_DNS_address))
+
+    response = DNS_response_format
+    response["Name"] = message["Questions"]["Name"]
+    response["Type"] = message["Questions"]["Type"]
+    response["Class"] = message["Questions"]["Class"]
+    response["Address"] = port
+
+    google_server_socket.sendto((json.dumps(response)).encode(), (local_DNS_address))

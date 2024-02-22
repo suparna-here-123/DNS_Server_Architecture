@@ -12,7 +12,7 @@ root_serverSocket.bind(('', root_DNS_port))
 TLD_IPs = {'com' : 6000, 'edu' : 6001, 'org' : 6002}
 
 while True:
-    #receiveing from the local DNS
+    #receiving from the local DNS
     local_DNS_message, local_DNS_address = root_serverSocket.recvfrom(16384)
 
     # # PROCESSING.....
@@ -31,4 +31,13 @@ while True:
 
     # sending the ip address of the respective TLD server back to the local DNS server
     print("Sending message to Local DNS : ", port)
-    root_serverSocket.sendto(str(port).encode(), (local_DNS_address))
+
+    response = DNS_response_format
+    response["Name"] = root_string["Questions"]["Name"]
+    response["Type"] = root_string["Questions"]["Type"]
+    response["Class"] = root_string["Questions"]["Class"]
+    response["Address"] = port
+
+    root_serverSocket.sendto((json.dumps(response)).encode(), (local_DNS_address))
+
+

@@ -35,9 +35,10 @@ while True :
     flag = 0                   # found in cache
     # 1) Check cache
     for cache_elem in cache : 
-        if cache_elem[0] == message.decode() :
+        if cache_elem['Name'] == message.decode() :
             flag = 1
-            IP_address = cache_elem[1]
+            local_serverSocket.sendto((json.dumps(cache_elem)).encode(), clientAddress)
+            break
     
     # 2) If not found in cache....
     if flag == 0 :
@@ -56,35 +57,35 @@ while True :
 
         # # Receving response from Root DNS
         root_response, root_DNS_address = local_serverSocket.recvfrom(16384)
-        root_response = root_response.decode()
+        root_response = json.loads(root_response.decode())
         print("Received response = ", root_response, 'from Root DNS\n')
 
         #sending the request to the respective TLD server
-        if (int(root_response)==TLD_IPs["com"]):
+        if (root_response["Address"]==TLD_IPs["com"]):
             print("in touch with .com server")
             local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["com"]))
 
-        elif (int(root_response)==TLD_IPs["edu"]):
+        elif (root_response["Address"]==TLD_IPs["edu"]):
             local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["edu"]))
 
-        elif (int(root_response)==TLD_IPs["org"]):
+        elif (root_response["Address"]==TLD_IPs["org"]):
             local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["org"]))
 
         #### HANDLE ALL THE OTHER CASES LATER!! ####
 
         #receiving the response from the TLD server
         com_TLD_message, com_TLD_address = local_serverSocket.recvfrom(16384)
-        com_TLD_message = com_TLD_message.decode()
+        com_TLD_message = json.loads(com_TLD_message.decode())
         print("Received response = ", com_TLD_message, 'from TLD server\n')
 
         #sending the request to the respective auth servers
-        if (int(com_TLD_message) == Auth_IPs["amazon"]):
+        if (com_TLD_message["Address"]== Auth_IPs["amazon"]):
             local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["amazon"]))
 
-        elif (int(com_TLD_message) == Auth_IPs["flipkart"]):
+        elif (com_TLD_message["Address"] == Auth_IPs["flipkart"]):
             local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["flipkart"]))
         
-        elif (int(com_TLD_message) == Auth_IPs["google"]):
+        elif (com_TLD_message["Address"] == Auth_IPs["google"]):
             print("in touch with google")
             local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["google"]))
 
@@ -94,17 +95,16 @@ while True :
 
         #receiving the response from the Auth server
         auth_response, authAddress = local_serverSocket.recvfrom(16384)
-        print("the response received from the auth server is: ",auth_response.decode())
+        auth_response = json.loads(auth_response.decode())
 
         #sending the received response back to the client
-        local_serverSocket.sendto(auth_response, clientAddress)
+        local_serverSocket.sendto((json.dumps(auth_response)).encode(), clientAddress)
         
 
-        # # Caching the received response
-        # if (len_cache < 10) :
-        #     to_cache = (root_response['Name'], root_response['Address'], root_response["Type"])
-        #     cache.append(to_cache)
-        #     len_cache += 1
+        # Caching the received response
+        if (len_cache < 10) :
+            cache.append(auth_response)
+            len_cache += 1
         
         # # Sending response to client
         # #local_serverSocket.sendto(root_response["Address"], clientAddress)

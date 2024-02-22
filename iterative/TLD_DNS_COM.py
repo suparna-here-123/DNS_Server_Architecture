@@ -33,7 +33,16 @@ while True:
     # Sending the response(the port number of the respective auth server) back to the local DNS
     query = DNS_query_format
     print("Sending message to Local DNS : ", port)
-    com_server_socket.sendto(str(port).encode(), (local_DNS_address))
+
+    response = DNS_response_format
+    response["Name"] = local_DNS_message["Questions"]["Name"]
+    response["Type"] = local_DNS_message["Questions"]["Type"]
+    response["Class"] = local_DNS_message["Questions"]["Class"]
+    response["Address"] = port
+
+    com_server_socket.sendto((json.dumps(response)).encode(), (local_DNS_address))
+
+   
 
     # # Response received here...........
     # auth_response, authAddress = com_server_socket.recvfrom(16384)
