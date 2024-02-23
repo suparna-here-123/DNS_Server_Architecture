@@ -1,5 +1,6 @@
 from socket import *
 from Common_to_all import *
+import time
 import json
 
 # .com TLD port
@@ -28,16 +29,36 @@ while True :
         port = Auth_IPs['flipkart']
     
     else :
-        pass
+        port = 0
     #     # DO SOMETHING HEREE!!!!!!!!!!!!
 
-    # Sending request to Auth
-    query = DNS_query_format
-    com_server_socket.sendto(json.dumps(root_DNS_message).encode(), (All_Servers_IP, port))
+    if (port == 0) :
+        print("Port was zero")
+        response = DNS_response_format
+        response["Name"] = root_DNS_message["Questions"]["Name"]
+        response["Type"] = root_DNS_message["Questions"]["Type"]
+        response["Class"] = root_DNS_message["Questions"]["Class"]
+        response["Address"] = port
+        com_server_socket.sendto((json.dumps(response)).encode(), root_DNS_address)
+        continue
 
-    # Response received here...........
-    auth_response, authAddress = com_server_socket.recvfrom(16384)
+    else :
+        # Sending request to Auth
+        query = DNS_query_format
+        com_server_socket.sendto(json.dumps(root_DNS_message).encode(), (All_Servers_IP, port))
 
-    #Sending response to Root server here..
-    print("Auth -> TLD : ", auth_response.decode())
-    com_server_socket.sendto(auth_response, root_DNS_address)
+        # Response received here...........
+        print("TLD received from Auth")
+        auth_response, authAddress = com_server_socket.recvfrom(16384)
+        print(auth_response)
+        print("\n")
+
+        #Sending response to Root server here..
+        print("TLD to Root")
+        print(auth_response.decode())
+        print("\n")
+
+        # Sending response to Root DNS
+        time.sleep(3)               # wait before sending response
+        com_server_socket.sendto(auth_response, root_DNS_address)
+        print("-----------------------------------------")

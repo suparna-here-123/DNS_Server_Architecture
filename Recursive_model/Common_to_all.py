@@ -27,4 +27,4 @@ DNS_response_format = {"Name" : "",
 
 '''
 
-All_Servers_IP = "192.168.94.179"
+All_Servers_IP = "10.30.202.33"

@@ -16,4 +16,4 @@ DNS_response_format = {"Name" : "",
                         "Address" : 0, 
                         "CNAME" : ""}
 
-All_Servers_IP = "127.0.30.30"
+All_Servers_IP = "10.20.201.193"

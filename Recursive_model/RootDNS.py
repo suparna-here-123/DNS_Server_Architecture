@@ -1,5 +1,6 @@
 from socket import *
 from Common_to_all import *
+import time
 import json
 
 # Root DNS port
@@ -28,17 +29,40 @@ while True:
     elif TLD == 'edu' :
         port = TLD_IPs['edu']
     
-    else :
+    elif TLD == 'org':
         port = TLD_IPs['org']
-    # WHAT TO DO IF NONE OF THESE!!!!!!!!!!!!!
+
+    else :
+        port = 0
     
     # Sending message to next DNS server
-    query = DNS_query_format
-    root_serverSocket.sendto(local_DNS_message, (All_Servers_IP, port))
+    if (port == 0) :
+        print("Port was zero")
+        response = DNS_response_format
+        response["Name"] = TLD_string["Questions"]["Name"]
+        response["Type"] = TLD_string["Questions"]["Type"]
+        response["Class"] = TLD_string["Questions"]["Class"]
+        response["Address"] = port
+        root_serverSocket.sendto((json.loads(response)).encode(), local_DNS_address)
+        continue
+    
+    else :
+        print("Port was NOT zero")
+        query = DNS_query_format
+        root_serverSocket.sendto(local_DNS_message, (All_Servers_IP, port))
 
-    # Receiving response from TLD server
-    TLD_response, TLD_address = root_serverSocket.recvfrom(16384)
+        # Receiving response from TLD server
+        print("Root received from TLD")
+        TLD_response, TLD_address = root_serverSocket.recvfrom(16384)
+        print(TLD_response)
+        print("\n")
+        
+        # Passing on response to Local DNS
+        print("Root sending to Local DNS")
+        print(TLD_response.decode())
 
-    # Passing on response to Local DNS
-    print("Sending message to Local DNS : ", TLD_response.decode())
-    root_serverSocket.sendto(TLD_response, local_DNS_address) 
+        # Sending back to Local DNS
+        time.sleep(3)               # wait before sending response
+        root_serverSocket.sendto(TLD_response, local_DNS_address)
+
+    print("-----------------------------------------")

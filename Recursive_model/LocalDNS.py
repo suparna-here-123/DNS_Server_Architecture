@@ -2,6 +2,7 @@ from socket import *
 import random
 from Common_to_all import *
 import json
+import time
 
 # IP ADDRESS FOR WHOLE DNS SYSTEM - THIS COMPUTER
 # SHOULD UPDATE EVERY TIME NETWORK IS JOINED NEWLY !!!!!!!!!!!!!!!!!!
@@ -24,13 +25,15 @@ while True :
 
     # receiving query from client
     message, clientAddress = local_serverSocket.recvfrom(16384)        # can receive max of 4 KB
-    # print("Received request for : ", message.decode(), 'from IP address', clientAddress[0])
+    print("Received request for : ", message.decode(), 'from IP address', clientAddress[0])
+
     
     flag = 0                   # found in cache
     # 1) Check cache
     for cache_elem in cache : 
         if cache_elem['Name'] == message.decode() :
             flag = 1
+            time.sleep(3)               # wait before sending response
             local_serverSocket.sendto((json.dumps(cache_elem)).encode(), clientAddress)
             break
     
@@ -50,8 +53,10 @@ while True :
         local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, root_DNS_port))
 
         # # Receving response from Root DNS
+        print("Local DNS received from Root")
         root_response, root_DNS_address = local_serverSocket.recvfrom(16384)
         root_response = json.loads(root_response.decode()) # dictionary
+        print(root_response, "\n")
 
         # Caching the received response
         if (len_cache < 10) :
@@ -59,5 +64,8 @@ while True :
             len_cache += 1
         
         # Sending response to client
-        print("Local DNS server received : ", root_response)
+        print("Local DNS sending to Client")
+        print(json.dumps(root_response))
+        time.sleep(3)               # wait before sending response
         local_serverSocket.sendto((json.dumps(root_response)).encode(), clientAddress)
+        print("-----------------------------------------")
