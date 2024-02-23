@@ -1,6 +1,7 @@
 from socket import *
 from Common_to_all import *
 import json
+import time
 
 # .com TLD port
 google_auth_port = 7000
@@ -16,26 +17,27 @@ while True:
     message = local_DNS_message.decode()
     message = json.loads(message)
 
-    if ("drive" in local_DNS_message.decode()):
+    if ("drive" in message["Questions"]["Name"].split('.')):
         port= Services_IP["drive"]
 
-    elif ("youtube" in local_DNS_message.decode()) :
+    elif ("youtube" in message["Questions"]["Name"].split('.')) :
         port= Services_IP["youtube"]
 
-    elif ("classroom" in local_DNS_message.decode()) :
+    elif ("classroom" in message["Questions"]["Name"].split('.')) :
         port= Services_IP["classroom"]
 
     else :
-        pass
+        port=0
         ################# HANDLE OTHER SERVICES #######################
 
     # Sending response back to the local DNS server
-    print("Sending message to Local DNS : ", port)
 
     response = DNS_response_format
     response["Name"] = message["Questions"]["Name"]
     response["Type"] = message["Questions"]["Type"]
     response["Class"] = message["Questions"]["Class"]
     response["Address"] = port
+    print("Sending message to Local DNS : ", response)
 
+    time.sleep(3) 
     google_server_socket.sendto((json.dumps(response)).encode(), (local_DNS_address))

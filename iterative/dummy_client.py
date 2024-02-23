@@ -20,34 +20,38 @@ while True :
     message_recvd = local_dns_message.decode()
     dict_msg = json.loads(message_recvd)
 
-    print(All_Servers_IP, dict_msg['Address'], dict_msg['Class'])
+    if dict_msg['Address'] == 0 :
+         print("404 Page Not Found")
 
-    if 'CNAME' in client_query :
-         print('CNAME')
-        
-    elif 'MX' in client_query :
-         print('MX')
-    
-    else :
-        # printing IP address and port
-        print(All_Servers_IP, dict_msg['Type'])
-    
-    print("\n\n\n")
-    print("Query time : ", end - start)
-    print("SERVER : ", All_Servers_IP, dict_msg['Address'])
-    print("WHEN : ", end = "")
+    else :   
+          print(All_Servers_IP, dict_msg['Address'], dict_msg['Class'])
 
-    # Get current date and time
-    now = datetime.now()
+          if 'CNAME' in client_query :
+               print('CNAME')
+               
+          elif 'MX' in client_query :
+               print('MX')
+          
+          else :
+               # printing IP address and port
+               print(All_Servers_IP, dict_msg['Type'])
+          
+          print("\n\n\n")
+          print("Query time : ", end - start)
+          print("SERVER : ", All_Servers_IP, dict_msg['Address'])
+          print("WHEN : ", end = "")
 
-    # Get date components in words
-    date_in_words = now.strftime("%B %d, %Y")  # Full month name, day, year
+          # Get current date and time
+          now = datetime.now()
 
-    # Get time components in numbers
-    time_in_numbers = now.strftime("%H:%M:%S")  # Hours:Minutes:Seconds
+          # Get date components in words
+          date_in_words = now.strftime("%B %d, %Y")  # Full month name, day, year
 
-    # Get day of the week in words
-    day_in_words = now.strftime("%A")  # Full weekday name
-    print(day_in_words[0:3], date_in_words, time_in_numbers)
-    print("MSG SIZE : ", sys.getsizeof(message_recvd))
-    print("\n")
+          # Get time components in numbers
+          time_in_numbers = now.strftime("%H:%M:%S")  # Hours:Minutes:Seconds
+
+          # Get day of the week in words
+          day_in_words = now.strftime("%A")  # Full weekday name
+          print(day_in_words[0:3], date_in_words, time_in_numbers)
+          print("MSG SIZE : ", sys.getsizeof(message_recvd))
+          print("\n")

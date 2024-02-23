@@ -60,52 +60,61 @@ while True :
         root_response = json.loads(root_response.decode())
         print("Received response = ", root_response, 'from Root DNS\n')
 
-        #sending the request to the respective TLD server
-        if (root_response["Address"]==TLD_IPs["com"]):
-            print("in touch with .com server")
-            local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["com"]))
-
-        elif (root_response["Address"]==TLD_IPs["edu"]):
-            local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["edu"]))
-
-        elif (root_response["Address"]==TLD_IPs["org"]):
-            local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["org"]))
-
-        #### HANDLE ALL THE OTHER CASES LATER!! ####
-
-        #receiving the response from the TLD server
-        com_TLD_message, com_TLD_address = local_serverSocket.recvfrom(16384)
-        com_TLD_message = json.loads(com_TLD_message.decode())
-        print("Received response = ", com_TLD_message, 'from TLD server\n')
-
-        #sending the request to the respective auth servers
-        if (com_TLD_message["Address"]== Auth_IPs["amazon"]):
-            local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["amazon"]))
-
-        elif (com_TLD_message["Address"] == Auth_IPs["flipkart"]):
-            local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["flipkart"]))
+        if(root_response["Address"]==0):
+            local_DNS_port.sendto((json.dumps(root_response)).encode(), (clientAddress))
         
-        elif (com_TLD_message["Address"] == Auth_IPs["google"]):
-            print("in touch with google")
-            local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["google"]))
+        else:
+            #sending the request to the respective TLD server
+            if (root_response["Address"]==TLD_IPs["com"]):
+                print("in touch with .com server")
+                local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["com"]))
 
-        else :
-            pass
-        ################# HANDLE OTHER SERVICES #######################
+            elif (root_response["Address"]==TLD_IPs["edu"]):
+                local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["edu"]))
 
-        #receiving the response from the Auth server
-        auth_response, authAddress = local_serverSocket.recvfrom(16384)
-        auth_response = json.loads(auth_response.decode())
+            elif (root_response["Address"]==TLD_IPs["org"]):
+                local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["org"]))
 
-        #sending the received response back to the client
-        local_serverSocket.sendto((json.dumps(auth_response)).encode(), clientAddress)
-        
+            #### HANDLE ALL THE OTHER CASES LATER!! ####
 
-        # Caching the received response
-        if (len_cache < 10) :
-            cache.append(auth_response)
-            len_cache += 1
-        
-        # # Sending response to client
-        # #local_serverSocket.sendto(root_response["Address"], clientAddress)
-        # local_serverSocket.sendto(root_response.encode(), clientAddress)
+            #receiving the response from the TLD server
+            com_TLD_message, com_TLD_address = local_serverSocket.recvfrom(16384)
+            com_TLD_message = json.loads(com_TLD_message.decode())
+            print("Received response = ", com_TLD_message, 'from TLD server\n')
+
+            if (com_TLD_message["Address"]==0):
+                local_serverSocket.sendto((json.dumps(com_TLD_message)).encode(), (clientAddress))
+
+            else:
+                #sending the request to the respective auth servers
+                if (com_TLD_message["Address"]== Auth_IPs["amazon"]):
+                    local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["amazon"]))
+
+                elif (com_TLD_message["Address"] == Auth_IPs["flipkart"]):
+                    local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["flipkart"]))
+                
+                elif (com_TLD_message["Address"] == Auth_IPs["google"]):
+                    print("in touch with google")
+                    local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["google"]))
+
+                else :
+                    pass
+                ################# HANDLE OTHER SERVICES #######################
+
+                #receiving the response from the Auth server
+                auth_response, authAddress = local_serverSocket.recvfrom(16384)
+                auth_response = json.loads(auth_response.decode())
+                print("the response received from the auth server was: ", auth_response)
+
+                #sending the received response back to the client
+                local_serverSocket.sendto((json.dumps(auth_response)).encode(), clientAddress)
+                
+
+                # Caching the received response
+                if (len_cache < 10) :
+                    cache.append(auth_response)
+                    len_cache += 1
+                
+                # # Sending response to client
+                # #local_serverSocket.sendto(root_response["Address"], clientAddress)
+                # local_serverSocket.sendto(root_response.encode(), clientAddress)

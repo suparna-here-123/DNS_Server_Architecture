@@ -1,6 +1,7 @@
 from socket import *
 from Common_to_all import *
 import json
+import time
 
 # .com TLD port
 com_DNS_port = 6000
@@ -27,19 +28,20 @@ while True:
         port = Auth_IPs['flipkart']
 
     else :
-        pass
+        port=0
     #     # DO SOMETHING HEREE!!!!!!!!!!!!
 
     # Sending the response(the port number of the respective auth server) back to the local DNS
     query = DNS_query_format
-    print("Sending message to Local DNS : ", port)
 
     response = DNS_response_format
     response["Name"] = local_DNS_message["Questions"]["Name"]
     response["Type"] = local_DNS_message["Questions"]["Type"]
     response["Class"] = local_DNS_message["Questions"]["Class"]
     response["Address"] = port
+    print("Sending message to Local DNS : ", response)
 
+    time.sleep(3) 
     com_server_socket.sendto((json.dumps(response)).encode(), (local_DNS_address))
 
    

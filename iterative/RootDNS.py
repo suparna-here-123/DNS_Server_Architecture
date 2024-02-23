@@ -2,6 +2,7 @@ from socket import *
 import random
 from Common_to_all import *
 import json
+import time
 
 root_DNS_port = 52311
 root_serverSocket = socket(AF_INET, SOCK_DGRAM)
@@ -26,11 +27,14 @@ while True:
     elif TLD == 'edu' :
         port = TLD_IPs['edu']
 
-    else :
+    elif TLD == 'org' :
         port = TLD_IPs['org']
 
+    else:
+        port=0
+    
+
     # sending the ip address of the respective TLD server back to the local DNS server
-    print("Sending message to Local DNS : ", port)
 
     response = DNS_response_format
     response["Name"] = root_string["Questions"]["Name"]
@@ -38,6 +42,8 @@ while True:
     response["Class"] = root_string["Questions"]["Class"]
     response["Address"] = port
 
+    print("Sending message to Local DNS : ", response)
+    time.sleep(3) 
     root_serverSocket.sendto((json.dumps(response)).encode(), (local_DNS_address))
 
 
