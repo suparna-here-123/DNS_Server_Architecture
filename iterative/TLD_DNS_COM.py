@@ -6,13 +6,12 @@ import ssl
 from dtls import do_patch
 do_patch()
 
-
 # .com TLD port
 com_DNS_port = 6000
 com_server_socket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 com_server_socket.bind(('', com_DNS_port))
 
-Auth_IPs = {'google' : 7000, 'amazon' : 7001, 'flipkart' : 7002}
+Auth_IPs = {'google' : 7000, 'amazon' : 7001, 'flipkart' : 7002, 'goDaddy' : 7003}
 
 while True:
     # Receiving message from local DNS server

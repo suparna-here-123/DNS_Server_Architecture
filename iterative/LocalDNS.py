@@ -15,6 +15,8 @@ local_DNS_port = 53
 local_serverSocket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 local_serverSocket.bind(('', local_DNS_port))
 
+res_port=0
+
 # ROOT DNS INFO
 root_DNS_port = 52311
 
@@ -25,6 +27,8 @@ TLD_IPs = {'com' : 6000, 'edu' : 6001, 'org' : 6002}
 
 #specific auth server info's
 Auth_IPs = {'google' : 7000, 'amazon' : 7001, 'flipkart' : 7002}
+
+Auth_IPs_ORG = {'wikipedia' : 7000, 'redcross' : 7001, 'cambridge' : 7002}
 
 # Cache structure = [(Name, Address, Type)]
 len_cache = 0
@@ -64,18 +68,21 @@ while True :
         print("Received response = ", root_response, 'from Root DNS\n')
 
         if(root_response["Address"]==0):
-            local_DNS_port.sendto((json.dumps(root_response)).encode(), (clientAddress))
+            local_serverSocket.sendto(json.dumps(root_response).encode(), (clientAddress))
         
         else:
             #sending the request to the respective TLD server
             if (root_response["Address"]==TLD_IPs["com"]):
                 print("in touch with .com server")
+                res_port=root_response["Address"]
                 local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["com"]))
 
             elif (root_response["Address"]==TLD_IPs["edu"]):
+                res_port=root_response["Address"]
                 local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["edu"]))
 
             elif (root_response["Address"]==TLD_IPs["org"]):
+                res_port=root_response["Address"]
                 local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, TLD_IPs["org"]))
 
             #### HANDLE ALL THE OTHER CASES LATER!! ####
@@ -88,7 +95,7 @@ while True :
             if (com_TLD_message["Address"]==0):
                 local_serverSocket.sendto((json.dumps(com_TLD_message)).encode(), (clientAddress))
 
-            else:
+            elif res_port==TLD_IPs['com']:
                 #sending the request to the respective auth servers
                 if (com_TLD_message["Address"]== Auth_IPs["amazon"]):
                     local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["amazon"]))
@@ -100,9 +107,8 @@ while True :
                     print("in touch with google")
                     local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, Auth_IPs["google"]))
 
-                else :
+                else:
                     pass
-                ################# HANDLE OTHER SERVICES #######################
 
                 #receiving the response from the Auth server
                 auth_response, authAddress = local_serverSocket.recvfrom(16384)
@@ -117,7 +123,28 @@ while True :
                 if (len_cache < 10) :
                     cache.append(auth_response)
                     len_cache += 1
+            
+            elif res_port==TLD_IPs['org']:
+                #sending the request to the respective auth servers
+                if (com_TLD_message["Address"]== Auth_IPs_ORG["wikipedia"]):
+                    local_serverSocket.sendto(json.dumps(com_TLD_message).encode(), (clientAddress))
+
+                elif (com_TLD_message["Address"] == Auth_IPs_ORG["redcross"]):
+                    local_serverSocket.sendto(json.dumps(com_TLD_message).encode(), (clientAddress))
                 
-                # # Sending response to client
-                # #local_serverSocket.sendto(root_response["Address"], clientAddress)
-                # local_serverSocket.sendto(root_response.encode(), clientAddress)
+                elif (com_TLD_message["Address"] == Auth_IPs_ORG["cambridge"]):
+                    print("in touch with cambridge")
+                    local_serverSocket.sendto(json.dumps(com_TLD_message).encode(), (clientAddress))
+
+                else :
+                    pass
+
+                # Caching the received response
+                if (len_cache < 10) :
+                    cache.append(com_TLD_message)
+                    len_cache += 1
+                ################# HANDLE OTHER SERVICES #######################
+            
+            # # Sending response to client
+            # #local_serverSocket.sendto(root_response["Address"], clientAddress)
+            # local_serverSocket.sendto(root_response.encode(), clientAddress)
