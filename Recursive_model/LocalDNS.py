@@ -61,11 +61,12 @@ while True :
         root_response = json.loads(root_response.decode()) # dictionary
         print(root_response, "\n")
 
-        # Caching the received response
-        if (len_cache < 10) :
-            cache.append(root_response)
-            len_cache += 1
-        
+        # Caching response only if it was not a 404 not found error
+        if (root_response['Address'] != 0) :
+            if (len_cache < 10) :
+                cache.append(root_response)
+                len_cache += 1
+            
         # Sending response to client
         print("Local DNS sending to Client")
         print(json.dumps(root_response))
