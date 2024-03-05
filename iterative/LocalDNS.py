@@ -109,36 +109,41 @@ while True :
 
                 else:
                     pass
+
+                #receiving the response from the Auth server
+                auth_response, authAddress = local_serverSocket.recvfrom(16384)
+                auth_response = json.loads(auth_response.decode())
+                print("the response received from the auth server was: ", auth_response)
+
+                #sending the received response back to the client
+                local_serverSocket.sendto((json.dumps(auth_response)).encode(), clientAddress)
+                
+
+                # Caching the received response
+                if (len_cache < 10) :
+                    cache.append(auth_response)
+                    len_cache += 1
             
             elif res_port==TLD_IPs['org']:
                 #sending the request to the respective auth servers
-                if (com_TLD_message["Address"]== Auth_IPs["wikipedia"]):
-                    local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, clientAddress))
+                if (com_TLD_message["Address"]== Auth_IPs_ORG["wikipedia"]):
+                    local_serverSocket.sendto(json.dumps(com_TLD_message).encode(), (clientAddress))
 
-                elif (com_TLD_message["Address"] == Auth_IPs["redcross"]):
-                    local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, clientAddress))
+                elif (com_TLD_message["Address"] == Auth_IPs_ORG["redcross"]):
+                    local_serverSocket.sendto(json.dumps(com_TLD_message).encode(), (clientAddress))
                 
-                elif (com_TLD_message["Address"] == Auth_IPs["cambridge"]):
+                elif (com_TLD_message["Address"] == Auth_IPs_ORG["cambridge"]):
                     print("in touch with cambridge")
-                    local_serverSocket.sendto(json.dumps(query).encode(), (All_Servers_IP, clientAddress))
+                    local_serverSocket.sendto(json.dumps(com_TLD_message).encode(), (clientAddress))
 
                 else :
                     pass
+
+                # Caching the received response
+                if (len_cache < 10) :
+                    cache.append(com_TLD_message)
+                    len_cache += 1
                 ################# HANDLE OTHER SERVICES #######################
-
-            #receiving the response from the Auth server
-            auth_response, authAddress = local_serverSocket.recvfrom(16384)
-            auth_response = json.loads(auth_response.decode())
-            print("the response received from the auth server was: ", auth_response)
-
-            #sending the received response back to the client
-            local_serverSocket.sendto((json.dumps(auth_response)).encode(), clientAddress)
-            
-
-            # Caching the received response
-            if (len_cache < 10) :
-                cache.append(auth_response)
-                len_cache += 1
             
             # # Sending response to client
             # #local_serverSocket.sendto(root_response["Address"], clientAddress)
