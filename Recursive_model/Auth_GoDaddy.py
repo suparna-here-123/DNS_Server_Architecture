@@ -20,14 +20,15 @@ while True :
     com_TLD_message, com_TLD_address = goDaddy_server_socket.recvfrom(16384)
     message = com_TLD_message.decode()
     message = json.loads(message)
+    print(message)
     
-    if ("cats4you" in message['Questions']['Name']):
+    if ("cats4you" in message["Questions"]["Name"]):
         port= Services_IP["cats4you"]
     
-    elif ("darshini4you" in message['Questions']['Name']) :
+    elif ("darshini4you" in message["Questions"]["Name"]) :
         port= Services_IP["darshini4you"]
     
-    elif ("cafe4you" in message['Questions']['Name']) :
+    elif ("cafe4you" in message["Questions"]["Name"]) :
         port= Services_IP["cafe4you"]
 
     else :
