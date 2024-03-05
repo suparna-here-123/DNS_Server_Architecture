@@ -7,62 +7,41 @@ from dtls import do_patch
 do_patch()
 
 # .com TLD port
-com_DNS_port = 6001
-com_server_socket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
-com_server_socket.bind(('', com_DNS_port))
+org_DNS_port = 6002
+org_server_socket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
+org_server_socket.bind(('', org_DNS_port))
 
-Auth_IPs = {'wikipedia' : , 'amazon' : 7001, 'flipkart' : 7002, 'goDaddy' : 7003}
+Auth_IPs = {'wikipedia' : 8000, 'cambridge' : 8001, 'redcross' : 8002}
 
 while True :
-    print(".com TLD - ON\n")
+    print(".org TLD - ON\n")
 
     # Receiving message from Root DNS
-    root_DNS_message, root_DNS_address = com_server_socket.recvfrom(16384)
+    root_DNS_message, root_DNS_address = org_server_socket.recvfrom(16384)
 
     # PROCESSING..........
     root_DNS_message = json.loads(root_DNS_message.decode())        # brought down to dict form
     
-    if 'google' in root_DNS_message["Questions"]["Name"] :
-        port = Auth_IPs['google']
+    if 'wikipedia' in root_DNS_message["Questions"]["Name"] :
+        port = Auth_IPs['wikipedia']
     
-    elif 'amazon' in root_DNS_message["Questions"]["Name"] :
-        port = Auth_IPs['amazon']
+    elif 'cambridge' in root_DNS_message["Questions"]["Name"] :
+        port = Auth_IPs['cambridge']
     
-    elif 'flipkart' in root_DNS_message["Questions"]["Name"] :
-        port = Auth_IPs['flipkart']
+    elif 'redcross' in root_DNS_message["Questions"]["Name"] :
+        port = Auth_IPs['redcross']
     
     else :
         # Reroute to the GoDaddy auth server here
-        port = Auth_IPs['goDaddy']
+        port = 0
 
-    # if (port == 0) :
-    #     print("Port was zero")
-    #     response = DNS_response_format
-    #     response["Name"] = root_DNS_message["Questions"]["Name"]
-    #     response["Type"] = root_DNS_message["Questions"]["Type"]
-    #     response["Class"] = root_DNS_message["Questions"]["Class"]
-    #     response["Address"] = port
-    #     com_server_socket.sendto((json.dumps(response)).encode(), root_DNS_address)
-    #     continue
-
-    # else :
-        
-    # Sending request to Auth
-    query = DNS_query_format
-    com_server_socket.sendto(json.dumps(root_DNS_message).encode(), (All_Servers_IP, port))
-
-    # Response received here...........
-    print("TLD received from Auth")
-    auth_response, authAddress = com_server_socket.recvfrom(16384)
-    print(auth_response)
-    print("\n")
-
-    #Sending response to Root server here..
-    print("TLD to Root")
-    print(auth_response.decode())
-    print("\n")
+    response = DNS_response_format
+    response["Name"] = root_DNS_message["Questions"]["Name"]
+    response["Type"] = root_DNS_message["Questions"]["Type"]
+    response["Class"] = root_DNS_message["Questions"]["Class"]
+    response["Address"] = port
 
     # Sending response to Root DNS
     time.sleep(3)               # wait before sending response
-    com_server_socket.sendto(auth_response, root_DNS_address)
+    org_server_socket.sendto((json.dumps(response)).encode(), root_DNS_address)
     print("-----------------------------------------")
