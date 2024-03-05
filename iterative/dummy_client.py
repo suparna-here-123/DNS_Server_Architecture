@@ -3,9 +3,12 @@ from Common_to_all import *
 import json
 from datetime import datetime
 import sys
+import ssl
+from dtls import do_patch
+do_patch()
 
 client_port = 52
-client_socket = socket(AF_INET, SOCK_DGRAM)
+client_socket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 client_socket.bind(('', client_port))
 
 # Client is never always-on, but done here for demo only

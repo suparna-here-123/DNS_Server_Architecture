@@ -3,9 +3,12 @@ import random
 from Common_to_all import *
 import json
 import time
+import ssl
+from dtls import do_patch
+do_patch()
 
 root_DNS_port = 52311
-root_serverSocket = socket(AF_INET, SOCK_DGRAM)
+root_serverSocket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 root_serverSocket.bind(('', root_DNS_port))
 
 # Each TLD server designated to a unique port

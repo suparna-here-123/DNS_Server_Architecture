@@ -2,10 +2,14 @@ from socket import *
 from Common_to_all import *
 import json
 import time
+import ssl
+from dtls import do_patch
+do_patch()
+
 
 # .com TLD port
 com_DNS_port = 6000
-com_server_socket = socket(AF_INET, SOCK_DGRAM)
+com_server_socket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 com_server_socket.bind(('', com_DNS_port))
 
 Auth_IPs = {'google' : 7000, 'amazon' : 7001, 'flipkart' : 7002}

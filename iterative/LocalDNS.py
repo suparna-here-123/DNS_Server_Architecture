@@ -2,6 +2,9 @@ from socket import *
 import random
 from Common_to_all import *
 import json
+import ssl
+from dtls import do_patch
+do_patch()
 
 # IP ADDRESS FOR WHOLE DNS SYSTEM - THIS COMPUTER
 # SHOULD UPDATE EVERY TIME NETWORK IS JOINED NEWLY !!!!!!!!!!!!!!!!!!
@@ -9,7 +12,7 @@ import json
 
 # LOCAL DNS INFO
 local_DNS_port = 53
-local_serverSocket = socket(AF_INET, SOCK_DGRAM)
+local_serverSocket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 local_serverSocket.bind(('', local_DNS_port))
 
 # ROOT DNS INFO

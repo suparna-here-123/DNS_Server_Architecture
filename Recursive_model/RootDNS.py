@@ -2,10 +2,13 @@ from socket import *
 from Common_to_all import *
 import time
 import json
+import ssl
+from dtls import do_patch
+do_patch()
 
 # Root DNS port
 root_DNS_port = 52311
-root_serverSocket = socket(AF_INET, SOCK_DGRAM)
+root_serverSocket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 root_serverSocket.bind(('', root_DNS_port))
 
 # Each TLD server designated to a unique port

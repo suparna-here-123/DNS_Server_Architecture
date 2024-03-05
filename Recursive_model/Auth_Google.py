@@ -2,10 +2,13 @@ from socket import *
 from Common_to_all import *
 import time
 import json
+import ssl
+from dtls import do_patch
+do_patch()
 
 # .com TLD port
 google_auth_port = 7000
-google_server_socket = socket(AF_INET, SOCK_DGRAM)
+google_server_socket = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM))
 google_server_socket.bind(('', google_auth_port))
 
 
@@ -37,7 +40,7 @@ while True :
         response["Type"] = message["Questions"]["Type"]
         response["Class"] = message["Questions"]["Class"]
         response["Address"] = port
-        google_server_socket.sendto((json.loads(response)).encode(), root_DNS_address)
+        google_server_socket.sendto((json.loads(response)).encode(), com_TLD_address)
         continue
     
     else :
