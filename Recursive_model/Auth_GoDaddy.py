@@ -21,13 +21,13 @@ while True :
     message = com_TLD_message.decode()
     message = json.loads(message)
     
-    if ("cats4you" in com_TLD_message.decode().split('.')):
+    if ("cats4you" in message['Questions']['Name']):
         port= Services_IP["cats4you"]
     
-    elif ("darshini4you" in com_TLD_message.decode().split('.')) :
+    elif ("darshini4you" in message['Questions']['Name']) :
         port= Services_IP["darshini4you"]
     
-    elif ("cafe4you" in com_TLD_message.decode().split('.')) :
+    elif ("cafe4you" in message['Questions']['Name']) :
         port= Services_IP["cafe4you"]
 
     else :
@@ -41,7 +41,7 @@ while True :
         response["Type"] = message["Questions"]["Type"]
         response["Class"] = message["Questions"]["Class"]
         response["Address"] = port
-        goDaddy_server_socket.sendto((json.loads(response)).encode(), com_TLD_address)
+        goDaddy_server_socket.sendto((json.dumps(response)).encode(), com_TLD_address)
         continue
     
     else :
@@ -53,7 +53,7 @@ while True :
         response["Address"] = port
 
         # Auth received from TLD
-        print("Auth received from TLD")
+        print("GoDaddy Auth received from TLD")
         print(com_TLD_message.decode())
         print("\n")
 
